@@ -6,16 +6,13 @@ import java.util.List;
 
 public class CompileTask implements Task {
 	private static final String FILE_NAME = new String("HelloWorld.java");
-	private static final String SOURCES_DIRECTORY = "src"; //bin src
-	private static final String COMPILATION_DIRECTORY = "bin"; //bin src
+	private static final String SOURCES_DIRECTORY = "src";
 	
 	@Override
 	public Result execute(Options options) {
-		System.out.println("");
-		System.out.println("In execute() of CompileTask");
-        ProcessBuilder classCompileProcess = new ProcessBuilder("javac", FILE_NAME);
+        ProcessBuilder classCompileProcess = new ProcessBuilder(options.get("command"), options.get("file"));
         classCompileProcess.directory(new File(SOURCES_DIRECTORY));
-
+        
         List<String> command = classCompileProcess.command();
         System.out.println("Class compile Command: " + String.join(" ", command));
         

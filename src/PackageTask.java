@@ -9,14 +9,17 @@ public class PackageTask implements Task {
 	private static final String MAIN_CLASS = "HelloWorld";
 	private static final String FILE_NAME = new String("HelloWorld.java");
 	private static final String RESOURCES_DIRECTORY = "src";
+	private static final String EXPECTED_OUTPUT = "Hello World!";
 
 	@Override
 	public Result execute(Options options) {
-		System.out.println("");
-		System.out.println("In execute() of PackageTask");
 		String compiledJavaFile = FILE_NAME.replace(".java", ".class");
         String jarFileName = FILE_NAME.replace(".java", ".jar");
-        ProcessBuilder jarProcessBuilder = new ProcessBuilder("jar", "cfe", jarFileName, MAIN_CLASS, compiledJavaFile);
+        ProcessBuilder jarProcessBuilder = new ProcessBuilder(options.get("command"), 
+        		options.get("commandTwo"), 
+        		options.get("jarFileName"), 
+        		options.get("file"), 
+        		options.get("compiledJavaFile"));
         jarProcessBuilder.directory(new File(RESOURCES_DIRECTORY));
 
         System.out.println("");
@@ -39,9 +42,23 @@ public class PackageTask implements Task {
         } else {
         	System.out.println("Jar file created successfully.");
         }
-        System.out.println("Running jar...");
+        
         List<String> command = jarProcessBuilder.command();
         System.out.println("Jar build Command: " + String.join(" ", command));
+        
+        
+        ProcessBuilder runJarProcessBuilder = new ProcessBuilder("java", "-jar", jarFileName);
+		runJarProcessBuilder.directory(new File(RESOURCES_DIRECTORY));
+		List<String> runCommand = runJarProcessBuilder.command();
+		System.out.println("Jar run Command: " + String.join(" ", runCommand));
+        
+        try {
+        	System.out.println("Running jar...");
+			run(runJarProcessBuilder);
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         
 		return null;
 	}
@@ -60,5 +77,23 @@ public class PackageTask implements Task {
 		}
         return stringBuilder.toString();
     }
+	
+	private static void run(ProcessBuilder processBuilder) throws IOException, InterruptedException {
+		Process process = processBuilder.start();
+		int exitCode = process.waitFor();
+		if (exitCode != 0) {
+			System.out.println("Process terminated abnormally: exit code " + exitCode);
+			System.out.println(readFromConsole(process.getErrorStream()));
+		} else {
+			System.out.println("Process terminated successfully.");
+			String processOutput = readFromConsole(process.getInputStream());
+			System.out.println("processOutput " + processOutput + " EXPECTED_OUTPUT " + EXPECTED_OUTPUT);
+			if (processOutput == EXPECTED_OUTPUT) {
+				System.out.println("Assert true");
+			} else {
+				System.out.println("Assert false");
+			}
+		}
+	}
 
 }

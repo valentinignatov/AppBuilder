@@ -9,11 +9,10 @@ public class TaskRunner {
 
 	TaskRunner() {};
 
-	void start() {
-		//I need to use ordered map because the commands are executing chaoticlly
+	void start() throws TaskFailureException {
+		//I need to use ordered map because the commands are executing chaotically
 		for (Entry<Task, Options> commandsFromMap: commandsMap.entrySet()) {
 			commandsFromMap.getKey().execute(commandsFromMap.getValue());
-			System.out.println("In execute() of TaskRunner" + commandsFromMap.getKey().toString() + commandsFromMap.getValue());
 		}
 	}
 

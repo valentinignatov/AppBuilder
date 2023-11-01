@@ -10,7 +10,7 @@ public class Options {
 		return this;
 	}
 	
-	Object get(String key) {
-		return map.get(key);
+	String get(String key) {
+		return (String) map.get(key);
 	}
 }
